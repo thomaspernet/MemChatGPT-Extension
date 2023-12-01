@@ -1,0 +1,95 @@
+function pushToMem(note, apiKey) {
+  return new Promise((resolve, reject) => {
+    var apiUrl = "https://api.mem.ai/v0/mems";
+    var headers = {
+      "Authorization": "ApiAccessToken " + apiKey,
+      "Content-Type": "application/json"
+    };
+    var payload = {
+      "content": note
+    };
+    var options = {
+      "method": "post",
+      "headers": headers,
+      "body": JSON.stringify(payload)
+    };
+
+    fetch(apiUrl, options)
+      .then(response => response.json())
+      .then(data => {
+        if (data.url) {
+          resolve(data.url);
+        } else {
+          reject("Error: URL not found in response");
+        }
+      })
+      .catch(error => reject("Error: " + error.message));
+  });
+}
+
+function processChatGPTRequest(api_key, text, prompt, model) {
+  return new Promise((resolve, reject) => {
+    prompt = prompt + "\n" + text;
+    var url = "https://api.openai.com/v1/chat/completions";
+    var data = {
+      "model": model, 
+      "messages": [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": prompt}
+      ]
+    };
+    var options = {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + api_key
+      },
+      body: JSON.stringify(data)
+    };
+
+    fetch(url, options)
+      .then(response => response.json())
+      .then(data => {
+        if (data.choices && data.choices.length > 0) {
+          resolve(data.choices[0].message.content);
+        } else {
+          reject("No response from ChatGPT");
+        }
+      })
+      .catch(error => reject("Error: " + error.message));
+  });
+}
+
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === 'pushToMem') {
+    chrome.storage.sync.get('api_mem', function(data) {
+      pushToMem(request.content, data.api_mem)
+        .then(url => sendResponse({ url: url }))
+        .catch(error => sendResponse({ error: error }));
+    });
+    return true; // Indicates that the response is asynchronous
+  }
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'processWithChatGPT') {
+    console.log("Received ChatGPT request in background:", request); // Log received request
+
+    chrome.storage.sync.get('api_chatgpt', function(data) {
+
+    // Call the function to process the ChatGPT request (modify this to suit your implementation)
+    processChatGPTRequest(data.api_chatgpt, request.content, request.prompt, request.model)
+      .then(response => {
+        console.log("ChatGPT processing successful:", response); // Log successful response
+        sendResponse({ output: response });
+      })
+      .catch(error => {
+        console.log("ChatGPT processing error:", error); // Log error
+        sendResponse({ error: 'Error: ' + error.message });
+      });
+    })
+
+    return true; // Indicates that the response is asynchronous
+  }
+});

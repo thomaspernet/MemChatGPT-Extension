@@ -14,6 +14,8 @@ To install MemChatGPT-Extension in Chrome:
 3. Enable "Developer mode" at the top right corner.
 4. Click on "Load unpacked" and select the directory of your downloaded extension.
 
+![](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/extension.png?raw=true)
+
 ## Setting Up API Keys
 
 ### Mem API Key

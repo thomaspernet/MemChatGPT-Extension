@@ -489,7 +489,7 @@ function pushContentToMem(content) {
     const memLinkElement = document.getElementById('mem_link');
     if (response && response.url) {
       memLinkElement.href = response.url;
-      memLinkElement.textContent = 'Mem URL: ';
+      memLinkElement.textContent = 'Open Mem URL';
       memLinkElement.style.display = 'block';
     } else {
       memLinkElement.textContent = 'Error or no URL in response';

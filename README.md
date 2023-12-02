@@ -27,6 +27,8 @@ To install MemChatGPT-Extension in Chrome:
 1. Visit [OpenAI API keys page](https://platform.openai.com/api-keys) to set up your API key.
 2. Note: Obtaining this key requires a credit card. Refer to [OpenAI's pricing](https://openai.com/pricing) for detailed information.
 
+![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/Example_03.png?raw=true)
+
 ## Using the Extension
 
 ### Templates for Mem
@@ -46,6 +48,8 @@ In MemChatGPT-Extension, templates are used to format content before pushing to 
 3. In the template area, enter your template using the placeholders.
 4. Click "Create Template".
 
+![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/Example_01.png?raw=true)
+
 ### Prompts for ChatGPT
 
 Prompts are used to guide the ChatGPT in processing your content.
@@ -57,11 +61,15 @@ Prompts are used to guide the ChatGPT in processing your content.
 3. Enter the ChatGPT prompt details in the provided area.
 4. Click "Create Prompt".
 
+![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/Example_02.png?raw=true)
+
 ## Extracting and Processing Content
 
 1. In the Main tab, select the desired Mem template and ChatGPT prompt.
 2. Click "Extract Content" while on a web page to pull its text content.
 3. The content is processed through ChatGPT and displayed in the output area. You can edit this content before pushing it to Mem.
+
+![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/Example_00.png?raw=true)
 
 ## Pushing to Mem
 

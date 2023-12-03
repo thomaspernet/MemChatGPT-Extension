@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   setupTabListeners();
+  loadCollection()
   loadApiKey();
   loadChatGPTApiKey();
   openTab('Main'); // Open Main tab by default
@@ -90,6 +91,62 @@ function setupManageTemplatesTab() {
     });
   }
 }
+
+function loadCollection() {
+    chrome.storage.local.get(['valuesList'], function(result) {
+        if (result.valuesList) {
+            result.valuesList.forEach(value => addValueToDatalist(value));
+        }
+    });
+}
+
+function formatKeyword(keyword) {
+    if (!keyword.startsWith('#')) {
+        keyword = '#' + keyword;
+    }
+    return keyword.replace(/\s+/g, '-');
+}
+
+document.getElementById('valuesInput').addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+        let value = event.target.value.trim();
+        if (value) {
+            value = formatKeyword(value); // Now you can reassign 'value'
+            addValue(value);
+            addToSelectedKeywords(value);
+            event.target.value = ''; // Clear the input field
+        }
+    }
+});
+
+
+function addValue(value) {
+    chrome.storage.local.get(['valuesList'], function(result) {
+        let valuesList = result.valuesList || [];
+        if (!valuesList.includes(value)) {
+            valuesList.push(value);
+            chrome.storage.local.set({ 'valuesList': valuesList }, function() {
+                addValueToDatalist(value);
+            });
+        }
+    });
+}
+
+function addValueToDatalist(value) {
+    const datalist = document.getElementById('valuesList');
+    const option = document.createElement('option');
+    option.value = value;
+    datalist.appendChild(option);
+}
+
+function addToSelectedKeywords(value) {
+    const selectedKeywordsArea = document.getElementById('selectedKeywords');
+    let currentText = selectedKeywordsArea.value;
+    currentText = currentText ? currentText + ', ' + value : value;
+    selectedKeywordsArea.value = currentText;
+}
+
+
 
 function setupManageChatGPTPromptsTab() {
   loadChatGPTPrompts();
@@ -450,7 +507,7 @@ document.getElementById('delete_template').addEventListener('click', () => {
 });
 
 
-function formatContentForMem(selectedTemplateName, content, title, currentUrl, callback) {
+function formatContentForMem(selectedTemplateName, content, title, currentUrl, selectedKeywords, callback) {
   chrome.storage.sync.get({ templates: {} }, function(data) {
     let template = data.templates[selectedTemplateName];
     if (template) {
@@ -458,12 +515,20 @@ function formatContentForMem(selectedTemplateName, content, title, currentUrl, c
       template = template.replace('{url}', currentUrl)
                          .replace('{date}', currentDate)
                          .replace('{title}', title);
+
+      if (template.includes('{collection}')) {
+        template = template.replace('{collection}', selectedKeywords);
+      } else if (selectedKeywords) {
+        template += '\n' + selectedKeywords;
+      }
+
       callback(template + "\n\n" + content);
     } else {
       callback(content); // Fallback if template is not found
     }
   });
 }
+
 
 function sendContentToBackgroundForChatGPT(content, prompt, model, callback) {
   console.log("Sending to ChatGPT:", {content, prompt, model}); // Log request details
@@ -505,8 +570,9 @@ document.getElementById('push_to_mem').addEventListener('click', () => {
       const content = document.getElementById('output_area').value;
       const title = document.getElementById('title_input').value;
       const selectedTemplate = document.getElementById('template_selector').value;
+      const selectedKeywords = document.getElementById('selectedKeywords').value;
 
-      formatContentForMem(selectedTemplate, content, title, currentUrl, formattedContent => {
+      formatContentForMem(selectedTemplate, content, title, currentUrl,selectedKeywords, formattedContent => {
         pushContentToMem(formattedContent);
       });
     }

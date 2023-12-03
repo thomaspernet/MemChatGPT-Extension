@@ -101,6 +101,10 @@
       border: 1px solid #ddd;
       border-top: none;
     }
+  #valuesInput {
+    width: 80%; /* Adjust as needed */
+    /* Other styling properties like padding, font-size etc. */
+  }
   </style>
 </head>
 <body>
@@ -142,11 +146,21 @@
       </div>
     </div>
     <div>
+      <input id="valuesInput" list="valuesList" placeholder="Type or select a keyword (hit enter to validate the keyword) [Optional]">
+      <datalist id="valuesList">
+        <!-- Options will be dynamically populated here -->
+      </datalist>
+    </div>
+<div>
+    <textarea id="selectedKeywords" placeholder="Selected keywords" readonly></textarea>
+</div>
+
+
+    <div>
       <button id="push_to_mem">Push to Mem</button>
       <a id="mem_link" href="#" target="_blank" style="display:none; margin-top: 10px; color: #28a745; font-weight: bold;"></a>
     </div>
   </div>
-
 <div id="CreateMemTemplate" class="tabcontent">
   <input type="text" id="new_template_name" placeholder="Template Name">
   <textarea id="new_template_area" placeholder="Enter template with placeholders: {url}, {date}, {title}"></textarea>

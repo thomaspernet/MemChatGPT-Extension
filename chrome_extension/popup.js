@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadCollection()
   loadApiKey();
   loadChatGPTApiKey();
+  loadApiKeyCoda();
   openTab('Main'); // Open Main tab by default
   loadExistingTemplates(); // Load existing templates
   loadChatGPTPrompts(); // Load ChatGPT prompts immediately
@@ -54,6 +55,14 @@ function loadChatGPTApiKey() {
   chrome.storage.sync.get('api_chatgpt', data => {
     if (data.api_chatgpt) {
       document.getElementById('chatgpt_api_key').value = data.api_chatgpt;
+    }
+  });
+}
+
+function loadApiKeyCoda() {
+  chrome.storage.sync.get('api_coda', data => {
+    if (data.api_coda) {
+      document.getElementById('coda_api_key').value = data.api_coda;
     }
   });
 }
@@ -409,6 +418,14 @@ document.getElementById('save_chatgpt_api_key').addEventListener('click', () => 
   });
 });
 
+document.getElementById('save_mem_api_key').addEventListener('click', () => {
+  const MemApiKey = document.getElementById('coda_api_key').value;
+  chrome.storage.sync.set({ api_coda: MemApiKey }, () => {
+    alert("Coda API Key saved!");
+  });
+});
+
+
 
 // This function will be injected into the current tab to extract content
 function getPageContentScript() {
@@ -562,6 +579,49 @@ function pushContentToMem(content) {
     }
   });
 }
+
+function pushContentToCoda(title, date, url, summary, memURL) {
+  const codaPushStatus = document.getElementById('coda_push_status'); 
+  chrome.runtime.sendMessage({
+    message: 'pushToCoda',
+    data: [
+      { 'column': 'c-fsZdlxkQ3W', 'value': title },
+      { 'column': 'c-wakbbgKbIP', 'value': date },
+      { 'column': 'c-NB8PqGQGGE', 'value': url },
+      { 'column': 'c--oXyI5ifQC', 'value': summary },
+      { 'column': 'c-hAE6915N6_', 'value': memURL },
+      { 'column': 'c-Womd1_4FFY', 'value': "TRUE" }
+    ]
+  }, response => {
+    if (response && response.success) {
+      
+      console.log('Pushed to Coda:', response.success);
+      codaPushStatus.textContent = 'Added';
+      codaPushStatus.style.color = 'green'; 
+      // Handle success (e.g., display a message to the user)
+    } else if (response && response.error) {
+      console.error('Error pushing to Coda:', response.error);
+      codaPushStatus.textContent = 'Added';
+      codaPushStatus.style.color = 'red'; 
+      // Handle error (e.g., display an error message to the user)
+    //}
+  });
+}
+
+
+document.getElementById('push_to_coda').addEventListener('click', () => {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs[0]) {
+      const title = document.getElementById('title_input').value;
+      const date = new Date().toISOString().split('T')[0];
+      const url = tabs[0].url;
+      const summary = document.getElementById('output_area').value;
+      const memURL = document.getElementById('mem_link').href;
+      pushContentToCoda(title, date, url, summary,memURL);
+    }
+  });
+});
+
 
 document.getElementById('push_to_mem').addEventListener('click', () => {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {

@@ -154,11 +154,11 @@
 <div>
     <textarea id="selectedKeywords" placeholder="Selected keywords" readonly></textarea>
 </div>
-
-
     <div>
       <button id="push_to_mem">Push to Mem</button>
       <a id="mem_link" href="#" target="_blank" style="display:none; margin-top: 10px; color: #28a745; font-weight: bold;"></a>
+      <button id="push_to_coda">Push to Coda</button>
+      <span id="coda_push_status" style="margin-left: 10px;"></span> <!-- Status message will appear here -->
     </div>
   </div>
 <div id="CreateMemTemplate" class="tabcontent">
@@ -204,6 +204,10 @@
     <input type="text" id="chatgpt_api_key" placeholder="Enter ChatGPT API Key">
     <button id="save_chatgpt_api_key">Save ChatGPT API Key</button>
   </div>
+  <div>
+  <input type="text" id="coda_api_key" placeholder="Enter your Coda API Key">
+</div>
+<button id="save_mem_api_key">Save Coda API Key</button>
 </div>
 
   <script src="popup.js"></script>

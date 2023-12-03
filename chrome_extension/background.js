@@ -60,6 +60,42 @@ function processChatGPTRequest(api_key, text, prompt, model) {
   });
 }
 
+function pushToCoda(data, apiKey) {
+  return new Promise((resolve, reject) => {
+    const apiUrl = 'https://coda.io/apis/v1/docs/zYeyeaTqEf/tables/EMAILS_NEWS/rows';
+    const headers = {
+      'Authorization': 'Bearer ' + apiKey,
+      'Content-Type': 'application/json'
+    };
+    const payload = {
+      'rows': [{
+        'cells': data
+      }]
+    };
+    const options = {
+      'method': 'POST',
+      'headers': headers,
+      'body': JSON.stringify(payload)
+    };
+
+    fetch(apiUrl, options)
+      .then(response => response.json())  // Parse JSON response
+      .then(data => {
+        // Check if the response has the 'items' array and each item should have an 'id'
+        if (data.items && data.items.length > 0 && data.items[0].id) {
+          resolve(data);
+        } else {
+          // If the expected 'id' is not present, consider it an error
+          reject(new Error("Failed to insert row. Response: " + JSON.stringify(data)));
+        }
+      })
+      .catch(error => {
+        // Network or parsing errors will be caught here
+        reject(new Error("Error: " + error.message));
+      });
+  });
+}
+
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.message === 'pushToMem') {
@@ -90,6 +126,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     })
 
+    return true; // Indicates that the response is asynchronous
+  }
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === 'pushToCoda') {
+    chrome.storage.sync.get('api_coda', function(data) {
+      pushToCoda(request.data, data.api_coda)
+        .then(response => sendResponse({ success: response }))
+        .catch(error => sendResponse({ error: error }));
+    });
     return true; // Indicates that the response is asynchronous
   }
 });

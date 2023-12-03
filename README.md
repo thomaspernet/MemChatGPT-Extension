@@ -71,6 +71,36 @@ Prompts are used to guide the ChatGPT in processing your content.
 
 ![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/Example_00.png?raw=true)
 
+## Collection Feature
+
+The Collection feature in Mem enhances your content organization by allowing you to tag your mems with relevant keywords. It's an optional feature that provides you with the flexibility to associate your content with custom tags, making it easier to categorize and retrieve later in Mem.
+
+### How to Use the Collection Feature
+
+1. In the Main tab, you'll find a new input field labeled "Type or select a keyword (hit enter to validate the keyword)".
+2. Begin typing a keyword. If the keyword already exists in your collection, it will appear in the dropdown menu for you to select. If it's a new keyword, simply finish typing and press Enter to add it to your collection.
+3. The keyword will automatically be formatted according to Mem's tagging standards:
+  - Each keyword will be prefixed with a "#" symbol.
+  - Spaces within keywords will be replaced with hyphens.
+4. The selected keywords will appear in a separate text box, each separated by a comma, ready to be added to your content.
+5. When you push your content to Mem, the selected keywords will be included. If the `{collection}` placeholder is present in your template, the keywords will replace it. Otherwise, the keywords will be appended at the bottom of your content.
+
+**Adding Keywords to Your Mem**
+
+Simply type your keyword and press Enter. The extension will handle the formatting and addition of the tag.
+
+**Collection Input**
+
+The selected keywords will display in a dedicated area, clearly showing all the tags that will accompany your mem.
+
+![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/Example_04.png?raw=true)
+
+**Selected Keywords**
+
+Remember, using the Collection feature is completely optional, but it can significantly enhance your content organization within Mem.
+
+![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/Example_05.png?raw=true)
+
 ## Pushing to Mem
 
 1. Optionally modify the processed content in the output area.

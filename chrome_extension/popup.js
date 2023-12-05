@@ -600,11 +600,11 @@ function pushContentToCoda(title, date, url, summary, memURL) {
       codaPushStatus.style.color = 'green'; 
       // Handle success (e.g., display a message to the user)
     } else if (response && response.error) {
-      console.error('Error pushing to Coda:', response.error);
+      //console.error('Error pushing to Coda:', response.error);
       codaPushStatus.textContent = 'Added';
       codaPushStatus.style.color = 'red'; 
       // Handle error (e.g., display an error message to the user)
-    //}
+    }
   });
 }
 

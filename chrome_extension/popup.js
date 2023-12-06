@@ -1,3 +1,4 @@
+let globalMessages = []; // Declare the global array to hold the messages
 document.addEventListener('DOMContentLoaded', () => {
   setupTabListeners();
   loadCollection()
@@ -7,10 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
   openTab('Main'); // Open Main tab by default
   loadExistingTemplates(); // Load existing templates
   loadChatGPTPrompts(); // Load ChatGPT prompts immediately
+  initializeMessageExtraction();
+  document.getElementById('selectMessagesTab').addEventListener('click', initializeMessageExtraction);
 });
 
 function setupTabListeners() {
   document.getElementById('mainTab').addEventListener('click', () => openTab('Main'));
+  document.getElementById('selectMessagesTab').addEventListener('click', () => openTab('SelectMessages'));
   document.getElementById('memTemplateTab').addEventListener('click', () => openTab('CreateMemTemplate'));
   document.getElementById('manageTemplatesTab').addEventListener('click', () => {
     openTab('ManageTemplates');
@@ -122,7 +126,19 @@ document.getElementById('valuesInput').addEventListener('keyup', (event) => {
         if (value) {
             value = formatKeyword(value); // Now you can reassign 'value'
             addValue(value);
-            addToSelectedKeywords(value);
+            addToSelectedKeywords(value, 'main');
+            event.target.value = ''; // Clear the input field
+        }
+    }
+});
+
+document.getElementById('valuesInputConversation').addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+        let value = event.target.value.trim();
+        if (value) {
+            value = formatKeyword(value); // Now you can reassign 'value'
+            addValue(value);
+            addToSelectedKeywords(value, 'conversation');
             event.target.value = ''; // Clear the input field
         }
     }
@@ -148,12 +164,21 @@ function addValueToDatalist(value) {
     datalist.appendChild(option);
 }
 
-function addToSelectedKeywords(value) {
-    const selectedKeywordsArea = document.getElementById('selectedKeywords');
+function addToSelectedKeywords(value, source) {
+  let selectedKeywordsArea;
+  if(source === 'main'){
+    selectedKeywordsArea = document.getElementById('selectedKeywords');
+  } else {
+    selectedKeywordsArea = document.getElementById('selectedKeywordsConversation');
+  }
+
+  if (selectedKeywordsArea) {
     let currentText = selectedKeywordsArea.value;
     currentText = currentText ? currentText + ', ' + value : value;
     selectedKeywordsArea.value = currentText;
+  }
 }
+
 
 
 
@@ -206,6 +231,7 @@ function loadExistingTemplates() {
   chrome.storage.sync.get({ templates: {} }, function(data) {
     const existingTemplateSelector = document.getElementById('existing_template_selector');
     const mainTemplateSelector = document.getElementById('template_selector');
+    const existingTemplateSelectorSelectMessages = document.getElementById('template_selector_selectMessages');
 
     resetSelector(existingTemplateSelector);
     resetSelector(mainTemplateSelector);
@@ -215,6 +241,7 @@ function loadExistingTemplates() {
       if (data.templates.hasOwnProperty(name)) {
         addOptionToSelector(existingTemplateSelector, name);
         addOptionToSelector(mainTemplateSelector, name);
+        addOptionToSelector(existingTemplateSelectorSelectMessages, name);
         if (!firstTemplateAdded) {
           mainTemplateSelector.value = name; // Set the first template as selected
           firstTemplateAdded = true;
@@ -491,13 +518,6 @@ function getPageContentScript() {
 
 
 
-function getPageContentScript() {
-  return document.body.innerText || 'No content found';
-}
-
-
-
-
 document.getElementById('extract_content').addEventListener('click', extractContentFromTab);
 
 
@@ -566,10 +586,19 @@ function sendContentToBackgroundForChatGPT(content, prompt, model, callback) {
   });
 }
 
-function pushContentToMem(content) {
+function pushContentToMem(content, source) {
   chrome.runtime.sendMessage({ message: 'pushToMem', content: content }, response => {
-    const memLinkElement = document.getElementById('mem_link');
+    let memLinkElement; // Declare the variable here
+
+    // Assign the appropriate element to memLinkElement based on the source
+    if (source === 'main') {
+      memLinkElement = document.getElementById('mem_link');
+    } else {
+      memLinkElement = document.getElementById('mem_linkConversation');
+    }
+
     if (response && response.url) {
+      console.log(response);
       memLinkElement.href = response.url;
       memLinkElement.textContent = 'Open Mem URL';
       memLinkElement.style.display = 'block';
@@ -579,6 +608,7 @@ function pushContentToMem(content) {
     }
   });
 }
+
 
 function pushContentToCoda(title, date, url, summary, memURL) {
   const codaPushStatus = document.getElementById('coda_push_status'); 
@@ -608,6 +638,111 @@ function pushContentToCoda(title, date, url, summary, memURL) {
   });
 }
 
+function initializeMessageExtraction() {
+    console.log("initializeMessageExtraction called"); // Debugging line
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        console.log("Tab:", tabs[0]); // Debugging line
+        if (tabs[0] && tabs[0].url.includes('https://chat.openai.com/')) {
+
+            chrome.scripting.executeScript({
+                target: {tabId: tabs[0].id},
+                function:function() {
+                        const messages = [];
+                        const messageContainers = document.querySelectorAll('.flex.flex-grow.flex-col.max-w-full');
+
+                        let isUserTurn = true; // Initialize to true if the conversation starts with "You"
+
+                        messageContainers.forEach(container => {
+                            const textElements = container.querySelectorAll('.text-message');
+                            textElements.forEach(textElement => {
+                                // Determine the author based on the turn
+                                let author = isUserTurn ? 'You' : 'ChatGPT';
+
+                                // Push the message with the determined author
+                                messages.push({
+                                    text: textElement.innerText.trim(),
+                                    author: author
+                                });
+
+                                // Toggle the author for the next message
+                                isUserTurn = !isUserTurn;
+                            });
+                        });
+
+                        return messages;
+                    },
+            }, (results) => {
+              //console.log("Script results:", results); // Debugging line
+                if (!results || !results[0] || !results[0].result) {
+                    console.error('No results returned from the script!');
+                    return;
+                }
+
+                // Clear existing messages
+                let messageList = document.getElementById('messageList');
+                //console.log("messageList element:", messageList);
+                //messageList.innerHTML = '';
+
+                // Assign the fetched messages to globalMessages
+                globalMessages = results[0].result;
+                globalMessages.forEach((message, index) => {
+                    let container = document.createElement('div');
+                    container.style.display = 'flex';
+                    container.style.flexDirection = 'column';
+                    container.style.marginBottom = '10px';
+
+                    let messageText = document.createElement('span');
+                    messageText.innerText = `[${message.author}] ${message.text}`;
+
+                    let checkBox = document.createElement('input');
+                    checkBox.type = 'checkbox';
+                    checkBox.style.marginTop = '5px';
+                    checkBox.dataset.messageIndex = index;
+
+                    container.appendChild(messageText);
+                    container.appendChild(checkBox);
+                    messageList.appendChild(container);
+                    //console.log("messageList element:", messageList)
+                });
+            });
+        } else {
+          console.log("This feature is only available on https://chat.openai.com/")
+          document.getElementById('messageList').innerText = "This feature is only available on https://chat.openai.com/";
+        }
+    });
+}
+
+document.getElementById('pushSelectedMessagesToMem').addEventListener('click', () => {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs[0]) {
+    const title = document.getElementById('title_input_conversation').value;
+    const date = new Date().toISOString().split('T')[0];
+    // Set default title if the input is empty
+    if (!title) {
+      title = `ChatGPT + You + ${date}`;
+    }
+    const currentUrl = tabs[0].url;
+    const selectedTemplate = document.getElementById('template_selector_selectMessages').value;
+    const selectedKeywords = document.getElementById('selectedKeywordsConversation').value;
+    const selectedMessages = [];
+    document.querySelectorAll('#messageList input[type="checkbox"]:checked').forEach(checkbox => {
+        const messageIndex = parseInt(checkbox.dataset.messageIndex, 10);
+        const message = globalMessages[messageIndex];
+        if (message) {
+            selectedMessages.push(message);
+        }
+    });
+
+    // Format the selected messages as needed
+    const formattedContent = selectedMessages.map(msg => `[${msg.author}]: ${msg.text}`).join('\n');
+
+    // Push the formatted content to Mem
+    formatContentForMem(selectedTemplate, formattedContent, title, currentUrl,selectedKeywords, formattedContent => {
+        pushContentToMem(formattedContent, 'conversation');
+      });
+    }
+  });
+});
 
 document.getElementById('push_to_coda').addEventListener('click', () => {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
@@ -633,8 +768,9 @@ document.getElementById('push_to_mem').addEventListener('click', () => {
       const selectedKeywords = document.getElementById('selectedKeywords').value;
 
       formatContentForMem(selectedTemplate, content, title, currentUrl,selectedKeywords, formattedContent => {
-        pushContentToMem(formattedContent);
+        pushContentToMem(formattedContent, 'main');
       });
     }
   });
 });
+

@@ -1,214 +1,270 @@
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f0f5f4;
-    color: #333;
-    min-width: 600px; /* Adjust the minimum width of the body */
-  }
+   body {
+   font-family: Arial, sans-serif;
+   margin: 0;
+   padding: 0;
+   background-color: #f0f5f4;
+   color: #333;
+   min-width: 600px; /* Adjust the minimum width of the body */
+   min-height: 800px;
+   }
+   .container {
+   background-color: #f0f5f4;
+   border: 1px solid #ddd;
+   padding: 15px;
+   border-radius: 8px;
+   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   max-width: 100%; /* Ensures the container does not exceed the width of the body */
+   }
+   .dropdown-container {
+   display: flex;
+   justify-content: space-around; /* Adjust as needed */
+   align-items: center;
+   margin-bottom: 10px;
+   }
+   input[type="text"], textarea {
+   width: calc(100% - 22px); /* Adjust width to account for padding and borders */
+   padding: 10px;
+   margin: 10px 0;
+   border: 1px solid #ddd;
+   border-radius: 4px;
+   box-sizing: border-box;
+   }
+   button {
+   background-color: #4e9a6a;
+   color: white;
+   padding: 10px 15px;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   margin-bottom: 10px;
+   }
+   button:hover {
+   background-color: #0056b3;
+   }
+   #output_area {
+   z-index: 1; /* Lower z-index */
+   /* Other styles remain unchanged */
+   }
+   #mem_link {
+   margin-top: 10px;
+   color: #28a745;
+   font-weight: bold;
+   }
+   #mem_linkConversation {
+   margin-top: 10px;
+   color: #28a745;
+   font-weight: bold;
+   }
+   .spinner {
+   position: absolute;
+   top: 70%;
+   left: 50%;
+   transform: translate(-50%, -50%);
+   z-index: 10; /* Higher z-index */
+   border: 4px solid #f3f3f3; /* Light grey */
+   border-top: 4px solid #3498db; /* Blue */
+   border-radius: 50%;
+   width: 40px;
+   height: 40px;
+   animation: spin 2s linear infinite;
+   margin: 20px auto; /* Center the loader */
+   }
+  .scrollable-messages-container {
+    margin-bottom: 20px; /* Adjust the spacing below the message list */
+}
 
-  .container {
-    background-color: #f0f5f4;
+.scrollable-messages {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px; /* Add padding to prevent overlap with the scrollbar */
+}
+
+.mem-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#pushSelectedMessagesToMem {
+    min-width: 150px; /* Ensure a minimum width for the button */
+    margin-bottom: 10px; /* Space below the button */
+}
+
+.mem-link {
+    margin-bottom: 10px; /* Space below the link */
+}
+
+
+   .tabcontent {
+    display: none;
+    padding: 6px 12px;
     border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    max-width: 100%; /* Ensures the container does not exceed the width of the body */
-  }
-  .dropdown-container {
-  display: flex;
-  justify-content: space-around; /* Adjust as needed */
-  align-items: center;
-  margin-bottom: 10px;
+    border-top: none;
+    min-height: 600px; /* Set a minimum height */
 }
-
-  input[type="text"], textarea {
-    width: calc(100% - 22px); /* Adjust width to account for padding and borders */
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-
-  button {
-     background-color: #4e9a6a;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-bottom: 10px;
-  }
-
-  button:hover {
-    background-color: #0056b3;
-  }
-  #output_area {
-    z-index: 1; /* Lower z-index */
-    /* Other styles remain unchanged */
-}
-  #mem_link {
-    margin-top: 10px;
-    color: #28a745;
-    font-weight: bold;
-  }
-.spinner {
-  position: absolute;
-    top: 70%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10; /* Higher z-index */
-  border: 4px solid #f3f3f3; /* Light grey */
-  border-top: 4px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 2s linear infinite;
-  margin: 20px auto; /* Center the loader */
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}  
-.tab {
-      overflow: hidden;
-      border: 1px solid #ddd;
-      background-color: #f1f1f1;
-    }
-    .tab button {
-      background-color: #76b39d;
-      color: white;
-      float: left;
-      border: none;
-      outline: none;
-      cursor: pointer;
-      padding: 14px 16px;
-      transition: 0.3s;
-    }
-    .tab button:hover {
-      background-color: #5a9178;
-      color: white;
-    }
-    .tab button.active {
-      background-color: #8ed1b7;
-    }
-    .tabcontent {
-      display: none;
-      padding: 6px 12px;
-      border: 1px solid #ddd;
-      border-top: none;
-    }
-  #valuesInput {
-    width: 80%; /* Adjust as needed */
-    /* Other styling properties like padding, font-size etc. */
-  }
-  </style>
+   @keyframes spin {
+   0% { transform: rotate(0deg); }
+   100% { transform: rotate(360deg); }
+   }  
+   .tab {
+   overflow: hidden;
+   border: 1px solid #ddd;
+   background-color: #f1f1f1;
+   }
+   .tab button {
+   background-color: #76b39d;
+   color: white;
+   float: left;
+   border: none;
+   outline: none;
+   cursor: pointer;
+   padding: 14px 16px;
+   transition: 0.3s;
+   }
+   .tab button:hover {
+   background-color: #5a9178;
+   color: white;
+   }
+   .tab button.active {
+   background-color: #8ed1b7;
+   }
+   .tabcontent {
+   display: none;
+   padding: 6px 12px;
+   border: 1px solid #ddd;
+   border-top: none;
+   }
+   #valuesInput {
+   width: 80%; /* Adjust as needed */
+   /* Other styling properties like padding, font-size etc. */
+   }
+</style>
 </head>
 <body>
-<div class="tab">
-  <button class="tablinks" id="mainTab">Main</button>
-  <button class="tablinks" id="memTemplateTab">Create Mem Template</button>
-  <button class="tablinks" id="manageTemplatesTab">Manage Templates</button>
-  <button class="tablinks" id="createChatGPTPromptTab">Create ChatGPT Prompt</button>
-  <button class="tablinks" id="manageChatGPTPromptsTab">Manage ChatGPT Prompts</button>
-  <button class="tablinks" id="apiKeysTab">API Keys</button>
-</div>
-  <div id="Main" class="tabcontent">
-    <div>
-      <input type="text" id="title_input" placeholder="Enter title">
-    </div>
-
-    <div>
-      <select id="template_selector">
-        <option value="default">Default Template</option>
-        <!-- Additional templates will be added here -->
-      </select>
-      <select id="chatgpt_prompt_selector">
-        <option value="">Select a ChatGPT Prompt</option>
-        <!-- ChatGPT prompts will be listed here -->
-      </select>
-      <select id="chatgpt_model_selector">
-        <option value="gpt-4-1106-preview">gpt-4-1106-preview</option>
-        <option value="gpt-4-0613">gpt-4-0613</option>
-        <option value="gpt-4-32k-0613">gpt-4-32k-0613</option>
-        <option value="gpt-3.5-turbo-1106">gpt-3.5-turbo-1106</option>
-      </select>
-</div>
-    <div>
-      <button id="extract_content">Extract Content</button>
-      <div id="output_area_container" style="position: relative;">
-          <textarea id="output_area" rows="10" cols="30"></textarea>
-          <div id="spinner" class="spinner" style="display: none;"></div>
+   <div class="tab">
+      <button class="tablinks" id="mainTab">Main</button>
+      <button class="tablinks" id="selectMessagesTab">Select Messages</button>
+      <button class="tablinks" id="memTemplateTab">Create Mem Template</button>
+      <button class="tablinks" id="manageTemplatesTab">Manage Templates</button>
+      <button class="tablinks" id="createChatGPTPromptTab">Create ChatGPT Prompt</button>
+      <button class="tablinks" id="manageChatGPTPromptsTab">Manage ChatGPT Prompts</button>
+      <button class="tablinks" id="apiKeysTab">API Keys</button>
+   </div>
+   <div id="Main" class="tabcontent">
+      <div>
+         <input type="text" id="title_input" placeholder="Enter title">
       </div>
-    </div>
-    <div>
-      <input id="valuesInput" list="valuesList" placeholder="Type or select a keyword (hit enter to validate the keyword) [Optional]">
-      <datalist id="valuesList">
-        <!-- Options will be dynamically populated here -->
-      </datalist>
-    </div>
-<div>
-    <textarea id="selectedKeywords" placeholder="Selected keywords" readonly></textarea>
-</div>
-    <div>
-      <button id="push_to_mem">Push to Mem</button>
-      <button id="push_to_coda">Push to Coda</button>
-      <a id="mem_link" href="#" target="_blank" style="display:none; margin-top: 10px; color: #28a745; font-weight: bold;"></a>
-      <span id="coda_push_status" style="margin-left: 10px;"></span> <!-- Status message will appear here -->
-    </div>
-  </div>
-<div id="CreateMemTemplate" class="tabcontent">
-  <input type="text" id="new_template_name" placeholder="Template Name">
-  <textarea id="new_template_area" placeholder="Enter template with placeholders: {url}, {date}, {title}"></textarea>
-  <button id="create_template">Create Template</button>
-</div>
-
-<div id="ManageTemplates" class="tabcontent">
-  <select id="existing_template_selector">
-    <option value="">Select a Template</option>
-    <!-- Existing templates will be listed here -->
-  </select>
-  <input type="text" id="edit_template_name" placeholder="Template Name">
-  <textarea id="edit_template_area"></textarea>
-  <button id="save_edited_template">Save Changes</button>
-  <button id="delete_template">Delete Template</button>
-</div>
-
-<div id="CreateChatGPTPrompt" class="tabcontent">
-  <input type="text" id="new_chatgpt_prompt_name" placeholder="Prompt Name">
-  <textarea id="new_chatgpt_prompt" placeholder="Enter ChatGPT prompt"></textarea>
-  <button id="create_chatgpt_prompt">Create Prompt</button>
-</div>
-
-<div id="ManageChatGPTPrompts" class="tabcontent">
-  <select id="existing_chatgpt_prompt_selector">
-    <option value="">Select a Prompt</option>
-    <!-- Existing prompts will be listed here -->
-  </select>
-  <input type="text" id="edit_chatgpt_prompt_name" placeholder="Prompt Name">
-  <textarea id="edit_chatgpt_prompt"></textarea>
-  <button id="save_edited_chatgpt_prompt">Save Changes</button>
-  <button id="delete_chatgpt_prompt">Delete Prompt</button>
-</div>
-
-<div id="ApiKeys" class="tabcontent">
-  <div>
-    <input type="text" id="api_key" placeholder="Enter Mem API Key">
-    <button id="save_api_key">Save Mem API Key</button>
-  </div>
-  <div>
-    <input type="text" id="chatgpt_api_key" placeholder="Enter ChatGPT API Key">
-    <button id="save_chatgpt_api_key">Save ChatGPT API Key</button>
-  </div>
-  <div>
-  <input type="text" id="coda_api_key" placeholder="Enter your Coda API Key">
-</div>
-<button id="save_mem_api_key">Save Coda API Key</button>
-</div>
-
-  <script src="popup.js"></script>
+      <div>
+         <select id="template_selector">
+            <option value="default">Default Template</option>
+            <!-- Additional templates will be added here -->
+         </select>
+         <select id="chatgpt_prompt_selector">
+            <option value="">Select a ChatGPT Prompt</option>
+            <!-- ChatGPT prompts will be listed here -->
+         </select>
+         <select id="chatgpt_model_selector">
+            <option value="gpt-4-1106-preview">gpt-4-1106-preview</option>
+            <option value="gpt-4-0613">gpt-4-0613</option>
+            <option value="gpt-4-32k-0613">gpt-4-32k-0613</option>
+            <option value="gpt-3.5-turbo-1106">gpt-3.5-turbo-1106</option>
+         </select>
+      </div>
+      <div>
+         <button id="extract_content">Extract Content</button>
+         <div id="output_area_container" style="position: relative;">
+            <textarea id="output_area" rows="10" cols="30"></textarea>
+            <div id="spinner" class="spinner" style="display: none;"></div>
+         </div>
+      </div>
+      <div>
+         <input id="valuesInput" list="valuesList" placeholder="Type or select a keyword (hit enter to validate the keyword) [Optional]">
+         <datalist id="valuesList">
+            <!-- Options will be dynamically populated here -->
+         </datalist>
+      </div>
+      <div>
+         <textarea id="selectedKeywords" placeholder="Selected keywords" readonly></textarea>
+      </div>
+      <div>
+         <button id="push_to_mem">Push to Mem</button>
+         <button id="push_to_coda">Push to Coda</button>
+         <a id="mem_link" href="#" target="_blank" style="display:none; margin-top: 10px; color: #28a745; font-weight: bold;"></a>
+         <span id="coda_push_status" style="margin-left: 10px;"></span> <!-- Status message will appear here -->
+      </div>
+   </div>
+   <div id="SelectMessages" class="tabcontent">
+      <div>
+         <input type="text" id="title_input_conversation" placeholder="Enter title">
+      </div>
+      <div>
+        <select id="template_selector_selectMessages">
+            <option value="default">Default Template</option>
+            <!-- Additional templates will be added here -->
+         </select>
+         <input id="valuesInputConversation" list="valuesList" placeholder="Type or select a keyword (hit enter to validate the keyword) [Optional]">
+         <datalist id="valuesInputConversation">
+            <!-- Options will be dynamically populated here -->
+         </datalist>
+      </div>
+      <div>
+         <textarea id="selectedKeywordsConversation" placeholder="Selected keywords" readonly></textarea>
+      </div>
+      <hr>
+      <div>
+      <button id="pushSelectedMessagesToMem">Push to Mem</button>
+         <a id="mem_linkConversation" href="#" target="_blank" style="display:none; margin-top: 10px; color: #28a745; font-weight: bold;"></a>
+      </div>
+      <hr>
+      <div>
+         <div class="scrollable-messages" id="messageList"></div>
+      </div>
+   </div>
+   <div id="CreateMemTemplate" class="tabcontent">
+      <input type="text" id="new_template_name" placeholder="Template Name">
+      <textarea id="new_template_area" placeholder="Enter template with placeholders: {url}, {date}, {title}"></textarea>
+      <button id="create_template">Create Template</button>
+   </div>
+   <div id="ManageTemplates" class="tabcontent">
+      <select id="existing_template_selector">
+         <option value="">Select a Template</option>
+         <!-- Existing templates will be listed here -->
+      </select>
+      <input type="text" id="edit_template_name" placeholder="Template Name">
+      <textarea id="edit_template_area"></textarea>
+      <button id="save_edited_template">Save Changes</button>
+      <button id="delete_template">Delete Template</button>
+   </div>
+   <div id="CreateChatGPTPrompt" class="tabcontent">
+      <input type="text" id="new_chatgpt_prompt_name" placeholder="Prompt Name">
+      <textarea id="new_chatgpt_prompt" placeholder="Enter ChatGPT prompt"></textarea>
+      <button id="create_chatgpt_prompt">Create Prompt</button>
+   </div>
+   <div id="ManageChatGPTPrompts" class="tabcontent">
+      <select id="existing_chatgpt_prompt_selector">
+         <option value="">Select a Prompt</option>
+         <!-- Existing prompts will be listed here -->
+      </select>
+      <input type="text" id="edit_chatgpt_prompt_name" placeholder="Prompt Name">
+      <textarea id="edit_chatgpt_prompt"></textarea>
+      <button id="save_edited_chatgpt_prompt">Save Changes</button>
+      <button id="delete_chatgpt_prompt">Delete Prompt</button>
+   </div>
+   <div id="ApiKeys" class="tabcontent">
+      <div>
+         <input type="text" id="api_key" placeholder="Enter Mem API Key">
+         <button id="save_api_key">Save Mem API Key</button>
+      </div>
+      <div>
+         <input type="text" id="chatgpt_api_key" placeholder="Enter ChatGPT API Key">
+         <button id="save_chatgpt_api_key">Save ChatGPT API Key</button>
+      </div>
+      <div>
+         <input type="text" id="coda_api_key" placeholder="Enter your Coda API Key">
+      </div>
+      <button id="save_mem_api_key">Save Coda API Key</button>
+   </div>
+   <script src="popup.js"></script>
 </body>
 </html>

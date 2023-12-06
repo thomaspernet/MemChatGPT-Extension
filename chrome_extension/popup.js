@@ -561,7 +561,10 @@ function formatContentForMem(selectedTemplateName, content, title, currentUrl, s
 
       callback(template + "\n\n" + content);
     } else {
-      callback(content); // Fallback if template is not found
+      if (title) {
+        title += "\n\n" +  content
+      }
+      callback(title); // Fallback if template is not found
     }
   });
 }
@@ -715,12 +718,12 @@ function initializeMessageExtraction() {
 document.getElementById('pushSelectedMessagesToMem').addEventListener('click', () => {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     if (tabs[0]) {
-    const title = document.getElementById('title_input_conversation').value;
+    let title = document.getElementById('title_input_conversation').value;
     const date = new Date().toISOString().split('T')[0];
-    // Set default title if the input is empty
+      // Set default title if the input is empty
     if (!title) {
-      title = `ChatGPT + You + ${date}`;
-    }
+        title = `# ChatGPT & You  ${date}`;
+      }
     const currentUrl = tabs[0].url;
     const selectedTemplate = document.getElementById('template_selector_selectMessages').value;
     const selectedKeywords = document.getElementById('selectedKeywordsConversation').value;

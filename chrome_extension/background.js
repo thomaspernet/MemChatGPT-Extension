@@ -95,6 +95,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "sendTextToExtension",
+    title: "Mem pusher text selection",
+    contexts: ["selection"],
+  });
+});
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "sendTextToExtension" && info.selectionText) {
     chrome.storage.local.get({ selectedTextsByUrl: {} }, (data) => {

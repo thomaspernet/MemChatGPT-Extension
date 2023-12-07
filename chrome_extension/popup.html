@@ -144,7 +144,8 @@
 <body>
    <div class="tab">
       <button class="tablinks" id="mainTab">Main</button>
-      <button class="tablinks" id="selectMessagesTab">Select Messages</button>
+      <button class="tablinks" id="selectMessagesTab">Push ChatGPT Conversation</button>
+      <button class="tablinks" id="textSelectionTab">Push Text Highlights</button>
       <button class="tablinks" id="memTemplateTab">Create Mem Template</button>
       <button class="tablinks" id="manageTemplatesTab">Manage Templates</button>
       <button class="tablinks" id="createChatGPTPromptTab">Create ChatGPT Prompt</button>
@@ -220,6 +221,31 @@
       <div>
          <div class="scrollable-messages" id="messageList"></div>
       </div>
+   </div>
+   <div id="TextSelection" class="tabcontent">
+      <div>
+         <input type="text" id="titleSelectedMessage" placeholder="Enter title">
+      </div>
+      <div>
+        <select id="template_selector_TextSelection">
+            <option value="default">Default Template</option>
+            <!-- Additional templates will be added here -->
+         </select>
+         <input id="valuesInputTextSelection" list="valuesList" placeholder="Type or select a keyword (hit enter to validate the keyword) [Optional]">
+         <datalist id="valuesInputTextSelection">
+            <!-- Options will be dynamically populated here -->
+         </datalist>
+      </div>
+      <div>
+         <textarea id="selectedKeywordsTextSelection" placeholder="Selected keywords" readonly></textarea>
+      </div>
+      <hr>
+      <div>
+      <button id="pushTextSelectionToMem">Push to Mem</button>
+         <a id="mem_linkTextSelection" href="#" target="_blank" style="display:none; margin-top: 10px; color: #28a745; font-weight: bold;"></a>
+      </div>
+      <hr>
+      <textarea id="selectedTextsArea" rows="10" cols="50" placeholder="Selected texts will appear here..."></textarea>
    </div>
    <div id="CreateMemTemplate" class="tabcontent">
       <input type="text" id="new_template_name" placeholder="Template Name">

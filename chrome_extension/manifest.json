@@ -5,14 +5,16 @@
   "permissions": [
     "activeTab",
     "storage",
-    "scripting"
+    "scripting",
+    "contextMenus"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": "images/icon.png"
+    "default_icon": "images/icon.png",
+    "default_popup": "popup.html"
+    
   },
   "host_permissions": ["<all_urls>", "https://chat.openai.com/*"],
   "content_scripts": [

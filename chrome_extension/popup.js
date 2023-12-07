@@ -1,5 +1,6 @@
 let globalMessages = []; // Declare the global array to hold the messages
 document.addEventListener('DOMContentLoaded', () => {
+  setTitleOfCurrentPage();
   setupTabListeners();
   loadCollection()
   loadApiKey();
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupTabListeners() {
   document.getElementById('mainTab').addEventListener('click', () => openTab('Main'));
   document.getElementById('selectMessagesTab').addEventListener('click', () => openTab('SelectMessages'));
+  document.getElementById('textSelectionTab').addEventListener('click', () => openTab('TextSelection'));
   document.getElementById('memTemplateTab').addEventListener('click', () => openTab('CreateMemTemplate'));
   document.getElementById('manageTemplatesTab').addEventListener('click', () => {
     openTab('ManageTemplates');
@@ -62,7 +64,6 @@ function loadChatGPTApiKey() {
   });
 }
 
-
 document.getElementById('create_template').addEventListener('click', () => {
   const templateName = document.getElementById('new_template_name').value.trim();
   const templateContent = document.getElementById('new_template_area').value;
@@ -96,6 +97,26 @@ function setupManageTemplatesTab() {
     });
   }
 }
+
+function setTitleOfCurrentPage() {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    // Ensure there is an active tab
+    if (tabs.length === 0) return;
+
+    const pageTitle = tabs[0].title || ''; // Get the title or set to empty string if not found
+    // Send the title to the popup
+    chrome.runtime.sendMessage({action: 'setTitle', title: pageTitle});
+  });
+}
+
+
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+  if (message.action === 'setTitle') {
+    document.getElementById('title_input').value = message.title;
+    document.getElementById('titleSelectedMessage').value = message.title;
+  }
+});
+
 
 function loadCollection() {
     chrome.storage.local.get(['valuesList'], function(result) {
@@ -136,6 +157,18 @@ document.getElementById('valuesInputConversation').addEventListener('keyup', (ev
     }
 });
 
+document.getElementById('valuesInputTextSelection').addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+        let value = event.target.value.trim();
+        if (value) {
+            value = formatKeyword(value); // Now you can reassign 'value'
+            addValue(value);
+            addToSelectedKeywords(value, 'text_selection');
+            event.target.value = ''; // Clear the input field
+        }
+    }
+});
+
 
 function addValue(value) {
     chrome.storage.local.get(['valuesList'], function(result) {
@@ -160,9 +193,12 @@ function addToSelectedKeywords(value, source) {
   let selectedKeywordsArea;
   if(source === 'main'){
     selectedKeywordsArea = document.getElementById('selectedKeywords');
-  } else {
+  } else if (source === 'conversation') {
     selectedKeywordsArea = document.getElementById('selectedKeywordsConversation');
+  } else if (source === 'text_selection') {
+    selectedKeywordsArea = document.getElementById('selectedKeywordsTextSelection');
   }
+
 
   if (selectedKeywordsArea) {
     let currentText = selectedKeywordsArea.value;
@@ -170,8 +206,6 @@ function addToSelectedKeywords(value, source) {
     selectedKeywordsArea.value = currentText;
   }
 }
-
-
 
 
 function setupManageChatGPTPromptsTab() {
@@ -224,9 +258,12 @@ function loadExistingTemplates() {
     const existingTemplateSelector = document.getElementById('existing_template_selector');
     const mainTemplateSelector = document.getElementById('template_selector');
     const existingTemplateSelectorSelectMessages = document.getElementById('template_selector_selectMessages');
+    const existingTemplateTextSelection = document.getElementById('template_selector_TextSelection');
 
     resetSelector(existingTemplateSelector);
     resetSelector(mainTemplateSelector);
+    resetSelector(existingTemplateSelectorSelectMessages);
+    resetSelector(existingTemplateTextSelection);
 
     let firstTemplateAdded = false;
     for (const name in data.templates) {
@@ -234,6 +271,7 @@ function loadExistingTemplates() {
         addOptionToSelector(existingTemplateSelector, name);
         addOptionToSelector(mainTemplateSelector, name);
         addOptionToSelector(existingTemplateSelectorSelectMessages, name);
+        addOptionToSelector(existingTemplateTextSelection, name);
         if (!firstTemplateAdded) {
           mainTemplateSelector.value = name; // Set the first template as selected
           firstTemplateAdded = true;
@@ -438,6 +476,7 @@ document.getElementById('save_chatgpt_api_key').addEventListener('click', () => 
 });
 
 
+
 // This function will be injected into the current tab to extract content
 function getPageContentScript() {
   return document.body.innerText || 'No content found';
@@ -580,8 +619,10 @@ function pushContentToMem(content, source) {
     // Assign the appropriate element to memLinkElement based on the source
     if (source === 'main') {
       memLinkElement = document.getElementById('mem_link');
-    } else {
+    } else if (source === 'conversation'){
       memLinkElement = document.getElementById('mem_linkConversation');
+    } else if (source === 'text_selection') {
+      memLinkElement = document.getElementById('mem_linkTextSelection');
     }
 
     if (response && response.url) {
@@ -595,7 +636,6 @@ function pushContentToMem(content, source) {
     }
   });
 }
-
 
 
 function initializeMessageExtraction() {
@@ -672,6 +712,25 @@ function initializeMessageExtraction() {
     });
 }
 
+document.getElementById('textSelectionTab').addEventListener('click', () => openTab('TextSelection'));
+
+function updateSelectedTextsArea() {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (!tabs.length) return;
+    const currentUrl = tabs[0].url;
+    chrome.storage.local.get({ selectedTextsByUrl: {} }, (data) => {
+      const textArea = document.getElementById('selectedTextsArea');
+      const selectedTexts = data.selectedTextsByUrl[currentUrl] || [];
+      // Prepend each text with "-" and join with new lines
+      textArea.value = selectedTexts.map(text => `- ${text}`).join("\n");
+    });
+  });
+}
+
+document.getElementById('textSelectionTab').addEventListener('click', updateSelectedTextsArea);
+
+
+
 document.getElementById('pushSelectedMessagesToMem').addEventListener('click', () => {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     if (tabs[0]) {
@@ -716,6 +775,23 @@ document.getElementById('push_to_mem').addEventListener('click', () => {
 
       formatContentForMem(selectedTemplate, content, title, currentUrl,selectedKeywords, formattedContent => {
         pushContentToMem(formattedContent, 'main');
+      });
+    }
+  });
+});
+
+document.getElementById('pushTextSelectionToMem').addEventListener('click', () => {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs[0]) {
+      const currentUrl = tabs[0].url;
+      const content = document.getElementById('selectedTextsArea').value;
+      const title = document.getElementById('titleSelectedMessage').value;
+      const selectedTemplate = document.getElementById('template_selector_TextSelection').value;
+      const selectedKeywords = document.getElementById('selectedKeywordsTextSelection').value;
+
+
+      formatContentForMem(selectedTemplate, content, title, currentUrl,selectedKeywords, formattedContent => {
+        pushContentToMem(formattedContent, 'text_selection');
       });
     }
   });

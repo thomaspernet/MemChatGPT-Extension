@@ -93,3 +93,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // Indicates that the response is asynchronous
   }
 });
+
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "sendTextToExtension",
+    title: "Mem pusher text selection",
+    contexts: ["selection"],
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "sendTextToExtension" && info.selectionText) {
+    chrome.storage.local.get({ selectedTextsByUrl: {} }, (data) => {
+      const url = tab.url;
+      if (!data.selectedTextsByUrl[url]) {
+        data.selectedTextsByUrl[url] = [];
+      }
+      data.selectedTextsByUrl[url].push(info.selectionText);
+      chrome.storage.local.set({ selectedTextsByUrl: data.selectedTextsByUrl });
+    });
+  }
+});

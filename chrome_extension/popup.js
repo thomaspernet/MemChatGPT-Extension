@@ -1,7 +1,8 @@
 let globalMessages = []; // Declare the global array to hold the messages
 document.addEventListener('DOMContentLoaded', () => {
-  setTitleOfCurrentPage();
+  requestPageTitle();
   setupTabListeners();
+
 
   loadCollection()
   loadApiKey();
@@ -108,24 +109,44 @@ function setupManageTemplatesTab() {
   }
 }
 
-function setTitleOfCurrentPage() {
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    // Ensure there is an active tab
-    if (tabs.length === 0) return;
+function requestPageTitle() {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            chrome.scripting.executeScript({
+                target: {tabId: tabs[0].id},
+                function: getPageTitle
+            }, (injectionResults) => {
+                if (injectionResults && injectionResults[0]) {
+                    const pageTitle = injectionResults[0].result;
+                    document.getElementById('title_input').value = pageTitle;
+                    document.getElementById('titleSelectedMessage').value = pageTitle;
+                }
+            });
+        });
+    }
 
-    const pageTitle = tabs[0].title || ''; // Get the title or set to empty string if not found
-    // Send the title to the popup
-    chrome.runtime.sendMessage({action: 'setTitle', title: pageTitle});
-  });
+
+function getPageTitle() {
+    // First, try the <title> tag
+    let title = document.title;
+    
+    // If not found, look for the first <h1> element
+    if (!title) {
+        const h1 = document.querySelector('h1');
+        if (h1) title = h1.textContent.trim();
+    }
+
+    // If still not found, check meta tags
+    if (!title) {
+        const metaTags = document.querySelectorAll('meta[name="title"], meta[property="og:title"], meta[name="twitter:title"], meta[property="og:site_name"]');
+        metaTags.forEach(meta => {
+            if (meta.content && !title) {
+                title = meta.content.trim();
+            }
+        });
+    }
+
+    return title || ''; // Return the found title or an empty string
 }
-
-
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  if (message.action === 'setTitle') {
-    document.getElementById('title_input').value = message.title;
-    document.getElementById('titleSelectedMessage').value = message.title;
-  }
-});
 
 
 function loadCollection() {

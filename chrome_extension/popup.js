@@ -663,47 +663,37 @@ function initializeMessageExtraction() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         console.log("Tab:", tabs[0]); // Debugging line
         if (tabs[0] && tabs[0].url.includes('https://chat.openai.com/')) {
-
             chrome.scripting.executeScript({
                 target: {tabId: tabs[0].id},
-                function:function() {
-                        const messages = [];
-                        const messageContainers = document.querySelectorAll('.flex.flex-grow.flex-col.max-w-full');
+                function: function() {
+                    const messages = [];
+                    const messageContainers = document.querySelectorAll('.flex.flex-grow.flex-col.max-w-full');
 
-                        let isUserTurn = true; // Initialize to true if the conversation starts with "You"
+                    let isUserTurn = true; // Initialize to true if the conversation starts with "You"
 
-                        messageContainers.forEach(container => {
-                            const textElements = container.querySelectorAll('.text-message');
-                            textElements.forEach(textElement => {
-                                // Determine the author based on the turn
-                                let author = isUserTurn ? 'You' : 'ChatGPT';
-
-                                // Push the message with the determined author
-                                messages.push({
-                                    text: textElement.innerText.trim(),
-                                    author: author
-                                });
-
-                                // Toggle the author for the next message
-                                isUserTurn = !isUserTurn;
+                    messageContainers.forEach(container => {
+                        const textElements = container.querySelectorAll('.text-message');
+                        textElements.forEach(textElement => {
+                            let author = isUserTurn ? 'You' : 'ChatGPT';
+                            messages.push({
+                                text: textElement.innerText.trim(),
+                                author: author
                             });
+                            isUserTurn = !isUserTurn;
                         });
+                    });
 
-                        return messages;
-                    },
+                    return messages;
+                },
             }, (results) => {
-              //console.log("Script results:", results); // Debugging line
                 if (!results || !results[0] || !results[0].result) {
                     console.error('No results returned from the script!');
                     return;
                 }
 
-                // Clear existing messages
                 let messageList = document.getElementById('messageList');
-                //console.log("messageList element:", messageList);
-                //messageList.innerHTML = '';
+                messageList.innerHTML = ''; // Clear existing messages
 
-                // Assign the fetched messages to globalMessages
                 globalMessages = results[0].result;
                 globalMessages.forEach((message, index) => {
                     let container = document.createElement('div');
@@ -722,15 +712,15 @@ function initializeMessageExtraction() {
                     container.appendChild(messageText);
                     container.appendChild(checkBox);
                     messageList.appendChild(container);
-                    //console.log("messageList element:", messageList)
                 });
             });
         } else {
-          console.log("This feature is only available on https://chat.openai.com/")
-          document.getElementById('messageList').innerText = "This feature is only available on https://chat.openai.com/";
+            console.log("This feature is only available on https://chat.openai.com/");
+            document.getElementById('messageList').innerText = "This feature is only available on https://chat.openai.com/";
         }
     });
 }
+
 
 document.getElementById('textSelectionTab').addEventListener('click', () => openTab('TextSelection'));
 

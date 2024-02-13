@@ -827,6 +827,7 @@ document.getElementById('push_to_coda').addEventListener('click', () => {
       const url = tabs[0].url;
       const summary = document.getElementById('output_area').value;
       const memURL = document.getElementById('mem_link').href;
+      console.log("Title:", title)
       pushContentToCoda(title, date, url, summary,memURL);
     }
   });

@@ -163,7 +163,7 @@ function displayFloatingBox(text) {
                 try {
                     const additionalInstructions = "\n\nUse the following template to answer:\n\n# Title\n\nExplanation:\n\nList of keywords:";
                     const fullPrompt = promptArea.value + additionalInstructions;
-                    const response = await processChatGPTRequest2(data.api_chatgpt, text, fullPrompt, 'gpt-4-0125-preview');
+                    const response = await processChatGPTRequest2(data.api_chatgpt, textarea.value, fullPrompt, 'gpt-4-0125-preview');
                     responseArea.value = response; // Display the response from ChatGPT
                 } catch (error) {
                     responseArea.value = 'Error fetching explanation: ' + error.message; // Display any errors that occur
@@ -191,8 +191,8 @@ function displayFloatingBox(text) {
     
     // Event listener for the button
     button.onclick = function() {
-        const url = window.location.href;  // Get the current page's URL
-        const textToPush = responseArea.value + '\nURL: ' + url;
+        const url_source = window.location.href;  // Get the current page's URL
+        const textToPush = responseArea.value + '\nURL: ' + url_source;
         chrome.storage.sync.get('api_mem', function(data) {
             if (data.api_mem) {
                 pushToMem2(textToPush, data.api_mem)

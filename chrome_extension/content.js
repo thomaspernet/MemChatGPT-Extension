@@ -191,9 +191,11 @@ function displayFloatingBox(text) {
     
     // Event listener for the button
     button.onclick = function() {
+        const url = window.location.href;  // Get the current page's URL
+        const textToPush = responseArea.value + '\nURL: ' + url;
         chrome.storage.sync.get('api_mem', function(data) {
             if (data.api_mem) {
-                pushToMem2(responseArea.value, data.api_mem)
+                pushToMem2(textToPush, data.api_mem)
                     .then(url => {
                         const link = document.createElement('a');
                         link.href = url;

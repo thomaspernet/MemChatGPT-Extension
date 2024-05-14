@@ -176,6 +176,7 @@ function displayFloatingBox(text) {
         });
     };
     box.appendChild(explainButton);
+    responseArea.disabled = false;
 
     // Add button to push content to Mem
     const button = document.createElement('button');

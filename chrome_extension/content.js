@@ -163,7 +163,7 @@ function displayFloatingBox(text) {
                 try {
                     const additionalInstructions = "\n\nUse the following template to answer:\n\n# Title\n\nExplanation:\n\nList of keywords:";
                     const fullPrompt = promptArea.value + additionalInstructions;
-                    const response = await processChatGPTRequest2(data.api_chatgpt, textarea.value, fullPrompt, 'gpt-4-0125-preview');
+                    const response = await processChatGPTRequest2(data.api_chatgpt, textarea.value, fullPrompt, 'gpt-4o');
                     responseArea.value = response; // Display the response from ChatGPT
                 } catch (error) {
                     responseArea.value = 'Error fetching explanation: ' + error.message; // Display any errors that occur

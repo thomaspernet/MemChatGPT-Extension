@@ -20,7 +20,7 @@
   "host_permissions": ["<all_urls>", "https://chat.openai.com/*"],
   "content_scripts": [
     {
-      "matches": ["<all_urls>","https://chat.openai.com/*", "chatgpt.com/*"],
+      "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
   ]

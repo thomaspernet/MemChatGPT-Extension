@@ -115,3 +115,30 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     });
   }
 });
+
+
+chrome.contextMenus.create({
+    id: "explainText",
+    title: "Explain",
+    contexts: ["selection"]
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === "explainText" && info.selectionText) {
+        // Ensure the tab is correct and ready
+        console.log("Sending to tab ID:", tab.id);
+        chrome.tabs.sendMessage(tab.id, {action: "displayFloatingBox", text: info.selectionText}, response => {
+            if(chrome.runtime.lastError){
+                console.error("Error sending message:", chrome.runtime.lastError.message);
+                return;
+            }
+            console.log("Response received:", response);
+        });
+    }
+});
+
+
+
+
+
+

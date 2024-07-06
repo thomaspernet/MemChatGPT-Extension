@@ -2,6 +2,8 @@ let globalMessages = []; // Declare the global array to hold the messages
 document.addEventListener('DOMContentLoaded', () => {
   requestPageTitle();
   setupTabListeners();
+
+
   loadCollection()
   loadApiKey();
   loadChatGPTApiKey();
@@ -496,7 +498,6 @@ document.getElementById('save_chatgpt_api_key').addEventListener('click', () => 
 });
 
 
-
 // This function will be injected into the current tab to extract content
 function getPageContentScript() {
   return document.body.innerText || 'No content found';
@@ -662,7 +663,7 @@ function initializeMessageExtraction() {
     console.log("initializeMessageExtraction called"); // Debugging line
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
         console.log("Tab:", tabs[0]); // Debugging line
-        if (tabs[0] && tabs[0].url.includes('https://chat.openai.com/')) {
+        if (tabs[0] && tabs[0].url.includes('https://chatgpt.com/')) {
             chrome.scripting.executeScript({
                 target: {tabId: tabs[0].id},
                 function: function() {
@@ -715,8 +716,8 @@ function initializeMessageExtraction() {
                 });
             });
         } else {
-            console.log("This feature is only available on https://chat.openai.com/");
-            document.getElementById('messageList').innerText = "This feature is only available on https://chat.openai.com/";
+            console.log("This feature is only available on https://chatgpt.com/");
+            document.getElementById('messageList').innerText = "This feature is only available on https://chatgpt.com/";
         }
     });
 }

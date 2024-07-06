@@ -6,7 +6,8 @@
     "activeTab",
     "storage",
     "scripting",
-    "contextMenus"
+    "contextMenus", 
+    "tabs"
   ],
   "background": {
     "service_worker": "background.js"
@@ -19,7 +20,7 @@
   "host_permissions": ["<all_urls>", "https://chat.openai.com/*"],
   "content_scripts": [
     {
-      "matches": ["<all_urls>","https://chat.openai.com/*"],
+      "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
   ]

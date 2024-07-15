@@ -32,7 +32,7 @@ function processChatGPTRequest(api_key, text, prompt, model) {
     prompt = prompt + "\n" + text;
     var url = "https://api.openai.com/v1/chat/completions";
     var data = {
-      "model": model, 
+      "model": model,
       "messages": [
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": prompt}
@@ -48,17 +48,23 @@ function processChatGPTRequest(api_key, text, prompt, model) {
     };
 
     fetch(url, options)
-      .then(response => response.json())
+      .then(response => response.json())  // Always parse JSON to get the full response.
       .then(data => {
-        if (data.choices && data.choices.length > 0) {
+        if (!data.error && data.choices && data.choices.length > 0) {
           resolve(data.choices[0].message.content);
         } else {
-          reject("No response from ChatGPT");
+          // Log and reject with the API error message if available
+          console.error("API Error:", data.error ? data.error.message : "No choices available");
+          reject("API Error: " + (data.error ? data.error.message : "No choices available"));
         }
       })
-      .catch(error => reject("Error: " + error.message));
+      .catch(error => {
+        console.error("Error processing request to OpenAI API:", error);
+        reject("Error: " + error.message);
+      });
   });
 }
+
 
 function pushToCoda(data, apiKey) {
   return new Promise((resolve, reject) => {

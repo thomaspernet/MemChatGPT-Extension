@@ -2,7 +2,7 @@
 
 MemChatGPT-Extension is a Chrome extension designed to enhance your workflow by integrating OpenAI's ChatGPT with Mem AI. This tool allows you to extract content from web pages, process it through ChatGPT, and then seamlessly push it to Mem for organized storage.
 
-![example]([https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/mem-example_rFuaYp5u.gif?raw=true](https://drive.google.com/file/d/19pnAWXrK5jfKEuf7umAEk4FAFiqOCZDk/view?usp=sharing)
+![example]([https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/mem-example_rFuaYp5u.gif?raw=true](https://drive.google.com/file/d/19pnAWXrK5jfKEuf7umAEk4FAFiqOCZDk/view?usp=sharing))
 
 
 ## Installation

@@ -2,8 +2,7 @@
 
 MemChatGPT-Extension is a Chrome extension designed to enhance your workflow by integrating OpenAI's ChatGPT with Mem AI. This tool allows you to extract content from web pages, process it through ChatGPT, and then seamlessly push it to Mem for organized storage.
 
-![example](https://drive.google.com/file/d/19pnAWXrK5jfKEuf7umAEk4FAFiqOCZDk/view?usp=sharing)
-
+![example](https://github.com/thomaspernet/github_video_hosting/blob/main/MemChatGPT/mem_adv.gif?raw=true)
 
 
 ## Installation
@@ -72,6 +71,10 @@ Prompts are used to guide the ChatGPT in processing your content.
 
 ![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/Example_00.png?raw=true)
 
+If chatGPT API is incorrect, you will see this error
+
+![extension](https://github.com/thomaspernet/MemChatGPT-Extension/blob/main/gif/error_api.jpg?raw=true)
+
 ## Collection Feature
 
 The Collection feature in Mem enhances your content organization by allowing you to tag your mems with relevant keywords. It's an optional feature that provides you with the flexibility to associate your content with custom tags, making it easier to categorize and retrieve later in Mem.
@@ -107,9 +110,14 @@ Remember, using the Collection feature is completely optional, but it can signif
 1. Optionally modify the processed content in the output area.
 2. Click "Push to Mem" to send the content to your Mem account.
 
-## Future Developments
+## Explainer
 
-Future iterations of the extension aim to leverage ChatGPT's capabilities directly, without the need for an API key.
+Mem Explainer" feature generate detailed explanations for selected text using ChatGPT, directly within a floating box on the webpage.
+
+It is possible to edit both the prompt and the selected text to refine the context and ChatGPT's responses.
+The response along with the webpage's URL is sent to Mem.
+
+![example](https://github.com/thomaspernet/github_video_hosting/blob/main/MemChatGPT/mem_explainer.gif?raw=true)
 
 ## Security Note
 Remember to keep your API keys private and securely stored. Avoid sharing them or embedding them in shared code repositories.

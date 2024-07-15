@@ -60,7 +60,7 @@ function processChatGPTRequest(api_key, text, prompt, model) {
       })
       .catch(error => {
         console.error("Error processing request to OpenAI API:", error);
-        reject("Error: " + error.message);
+        reject("Error: " + error);
       });
   });
 }
@@ -130,7 +130,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       })
       .catch(error => {
         console.log("ChatGPT processing error:", error); // Log error
-        sendResponse({ error: 'Error: ' + error.message });
+        sendResponse({ error: 'Error: ' + error });
       });
     })
 

@@ -144,7 +144,6 @@
 <body>
    <div class="tab">
       <button class="tablinks" id="mainTab">Main</button>
-      <button class="tablinks" id="selectMessagesTab">Push ChatGPT Conversation</button>
       <button class="tablinks" id="textSelectionTab">Push Text Highlights</button>
       <button class="tablinks" id="memTemplateTab">Create Mem Template</button>
       <button class="tablinks" id="manageTemplatesTab">Manage Templates</button>
@@ -191,33 +190,6 @@
       <div>
          <button id="push_to_mem">Push to Mem</button>
          <a id="mem_link" href="#" target="_blank" style="display:none; margin-top: 10px; color: #28a745; font-weight: bold;"></a>
-      </div>
-   </div>
-   <div id="SelectMessages" class="tabcontent">
-      <div>
-         <input type="text" id="title_input_conversation" placeholder="Enter title">
-      </div>
-      <div>
-        <select id="template_selector_selectMessages">
-            <option value="default">Default Template</option>
-            <!-- Additional templates will be added here -->
-         </select>
-         <input id="valuesInputConversation" list="valuesList" placeholder="Type or select a keyword (hit enter to validate the keyword) [Optional]">
-         <datalist id="valuesInputConversation">
-            <!-- Options will be dynamically populated here -->
-         </datalist>
-      </div>
-      <div>
-         <textarea id="selectedKeywordsConversation" placeholder="Selected keywords" readonly></textarea>
-      </div>
-      <hr>
-      <div>
-      <button id="pushSelectedMessagesToMem">Push to Mem</button>
-         <a id="mem_linkConversation" href="#" target="_blank" style="display:none; margin-top: 10px; color: #28a745; font-weight: bold;"></a>
-      </div>
-      <hr>
-      <div>
-         <div class="scrollable-messages" id="messageList"></div>
       </div>
    </div>
    <div id="TextSelection" class="tabcontent">

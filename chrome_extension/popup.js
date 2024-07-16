@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
   openTab('Main'); // Open Main tab by default
   loadExistingTemplates(); // Load existing templates
   loadChatGPTPrompts(); // Load ChatGPT prompts immediately
-  initializeMessageExtraction();
-  document.getElementById('selectMessagesTab').addEventListener('click', initializeMessageExtraction);
+  //initializeMessageExtraction();
+  //document.getElementById('selectMessagesTab').addEventListener('click', initializeMessageExtraction);
 });
 
 function setupTabListeners() {
   document.getElementById('mainTab').addEventListener('click', () => openTab('Main'));
-  document.getElementById('selectMessagesTab').addEventListener('click', () => openTab('SelectMessages'));
+  //document.getElementById('selectMessagesTab').addEventListener('click', () => openTab('SelectMessages'));
   document.getElementById('textSelectionTab').addEventListener('click', () => openTab('TextSelection'));
   document.getElementById('memTemplateTab').addEventListener('click', () => openTab('CreateMemTemplate'));
   document.getElementById('manageTemplatesTab').addEventListener('click', () => {
@@ -167,18 +167,6 @@ document.getElementById('valuesInput').addEventListener('keyup', (event) => {
     }
 });
 
-document.getElementById('valuesInputConversation').addEventListener('keyup', (event) => {
-    if (event.key === 'Enter') {
-        let value = event.target.value.trim();
-        if (value) {
-            value = formatKeyword(value); // Now you can reassign 'value'
-            addValue(value);
-            addToSelectedKeywords(value, 'conversation');
-            event.target.value = ''; // Clear the input field
-        }
-    }
-});
-
 document.getElementById('valuesInputTextSelection').addEventListener('keyup', (event) => {
     if (event.key === 'Enter') {
         let value = event.target.value.trim();
@@ -279,12 +267,12 @@ function loadExistingTemplates() {
   chrome.storage.sync.get({ templates: {} }, function(data) {
     const existingTemplateSelector = document.getElementById('existing_template_selector');
     const mainTemplateSelector = document.getElementById('template_selector');
-    const existingTemplateSelectorSelectMessages = document.getElementById('template_selector_selectMessages');
+    //const existingTemplateSelectorSelectMessages = document.getElementById('template_selector_selectMessages');
     const existingTemplateTextSelection = document.getElementById('template_selector_TextSelection');
 
     resetSelector(existingTemplateSelector);
     resetSelector(mainTemplateSelector);
-    resetSelector(existingTemplateSelectorSelectMessages);
+    //resetSelector(existingTemplateSelectorSelectMessages);
     resetSelector(existingTemplateTextSelection);
 
     let firstTemplateAdded = false;
@@ -292,7 +280,7 @@ function loadExistingTemplates() {
       if (data.templates.hasOwnProperty(name)) {
         addOptionToSelector(existingTemplateSelector, name);
         addOptionToSelector(mainTemplateSelector, name);
-        addOptionToSelector(existingTemplateSelectorSelectMessages, name);
+        //addOptionToSelector(existingTemplateSelectorSelectMessages, name);
         addOptionToSelector(existingTemplateTextSelection, name);
         if (!firstTemplateAdded) {
           mainTemplateSelector.value = name; // Set the first template as selected
@@ -658,71 +646,6 @@ function pushContentToMem(content, source) {
   });
 }
 
-
-function initializeMessageExtraction() {
-    console.log("initializeMessageExtraction called"); // Debugging line
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        console.log("Tab:", tabs[0]); // Debugging line
-        if (tabs[0] && tabs[0].url.includes('https://chatgpt.com/')) {
-            chrome.scripting.executeScript({
-                target: {tabId: tabs[0].id},
-                function: function() {
-                    const messages = [];
-                    const messageContainers = document.querySelectorAll('.flex.flex-grow.flex-col.max-w-full');
-
-                    let isUserTurn = true; // Initialize to true if the conversation starts with "You"
-
-                    messageContainers.forEach(container => {
-                        const textElements = container.querySelectorAll('.text-message');
-                        textElements.forEach(textElement => {
-                            let author = isUserTurn ? 'You' : 'ChatGPT';
-                            messages.push({
-                                text: textElement.innerText.trim(),
-                                author: author
-                            });
-                            isUserTurn = !isUserTurn;
-                        });
-                    });
-
-                    return messages;
-                },
-            }, (results) => {
-                if (!results || !results[0] || !results[0].result) {
-                    console.error('No results returned from the script!');
-                    return;
-                }
-
-                let messageList = document.getElementById('messageList');
-                messageList.innerHTML = ''; // Clear existing messages
-
-                globalMessages = results[0].result;
-                globalMessages.forEach((message, index) => {
-                    let container = document.createElement('div');
-                    container.style.display = 'flex';
-                    container.style.flexDirection = 'column';
-                    container.style.marginBottom = '10px';
-
-                    let messageText = document.createElement('span');
-                    messageText.innerText = `[${message.author}] ${message.text}`;
-
-                    let checkBox = document.createElement('input');
-                    checkBox.type = 'checkbox';
-                    checkBox.style.marginTop = '5px';
-                    checkBox.dataset.messageIndex = index;
-
-                    container.appendChild(messageText);
-                    container.appendChild(checkBox);
-                    messageList.appendChild(container);
-                });
-            });
-        } else {
-            console.log("This feature is only available on https://chatgpt.com/");
-            document.getElementById('messageList').innerText = "This feature is only available on https://chatgpt.com/";
-        }
-    });
-}
-
-
 document.getElementById('textSelectionTab').addEventListener('click', () => openTab('TextSelection'));
 
 function updateSelectedTextsArea() {
@@ -739,41 +662,6 @@ function updateSelectedTextsArea() {
 }
 
 document.getElementById('textSelectionTab').addEventListener('click', updateSelectedTextsArea);
-
-
-
-document.getElementById('pushSelectedMessagesToMem').addEventListener('click', () => {
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    if (tabs[0]) {
-    let title = document.getElementById('title_input_conversation').value;
-    const date = new Date().toISOString().split('T')[0];
-      // Set default title if the input is empty
-    if (!title) {
-        title = `# ChatGPT & You  ${date}`;
-      }
-    const currentUrl = tabs[0].url;
-    const selectedTemplate = document.getElementById('template_selector_selectMessages').value;
-    const selectedKeywords = document.getElementById('selectedKeywordsConversation').value;
-    const selectedMessages = [];
-    document.querySelectorAll('#messageList input[type="checkbox"]:checked').forEach(checkbox => {
-        const messageIndex = parseInt(checkbox.dataset.messageIndex, 10);
-        const message = globalMessages[messageIndex];
-        if (message) {
-            selectedMessages.push(message);
-        }
-    });
-
-    // Format the selected messages as needed
-    const formattedContent = selectedMessages.map(msg => `[${msg.author}]: ${msg.text}`).join('\n');
-
-    // Push the formatted content to Mem
-    formatContentForMem(selectedTemplate, formattedContent, title, currentUrl,selectedKeywords, formattedContent => {
-        pushContentToMem(formattedContent, 'conversation');
-      });
-    }
-  });
-});
-
 
 document.getElementById('push_to_mem').addEventListener('click', () => {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {

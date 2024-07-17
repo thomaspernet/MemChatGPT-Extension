@@ -665,7 +665,7 @@ function pushContentToMem(content, source) {
 
 
 function pushContentToCoda(title, date, url, summary, memURL) {
-  const codaPushStatus = document.getElementById('coda_push_status'); 
+  const codaPushStatus = document.getElementById('coda_push_status');
   chrome.runtime.sendMessage({
     message: 'pushToCoda',
     data: [
@@ -677,20 +677,24 @@ function pushContentToCoda(title, date, url, summary, memURL) {
       { 'column': 'c-Womd1_4FFY', 'value': "TRUE" }
     ]
   }, response => {
+    //if (chrome.runtime.lastError) {
+    //  console.error("Error in sending message:", chrome.runtime.lastError.message);
+    //  codaPushStatus.textContent = 'Error';
+    //  codaPushStatus.style.color = 'red';
+    //  return;
+    //}
     if (response && response.success) {
-      
       console.log('Pushed to Coda:', response.success);
       codaPushStatus.textContent = 'Added';
-      codaPushStatus.style.color = 'green'; 
-      // Handle success (e.g., display a message to the user)
+      codaPushStatus.style.color = 'green';
     } else if (response && response.error) {
-      //console.error('Error pushing to Coda:', response.error);
-      codaPushStatus.textContent = 'Added';
-      codaPushStatus.style.color = 'red'; 
-      // Handle error (e.g., display an error message to the user)
+      console.error('Error pushing to Coda:', response.message);
+      codaPushStatus.textContent = response.message;
+      codaPushStatus.style.color = 'red';
     }
   });
 }
+
 
 document.getElementById('textSelectionTab').addEventListener('click', () => openTab('TextSelection'));
 
@@ -717,7 +721,6 @@ document.getElementById('push_to_coda').addEventListener('click', () => {
       const url = tabs[0].url;
       const summary = document.getElementById('output_area').value;
       const memURL = document.getElementById('mem_link').href;
-      console.log("Title:", title)
       pushContentToCoda(title, date, url, summary,memURL);
     }
   });

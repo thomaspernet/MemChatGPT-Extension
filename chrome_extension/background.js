@@ -85,22 +85,39 @@ function pushToCoda(data, apiKey) {
     };
 
     fetch(apiUrl, options)
-      .then(response => response.json())  // Parse JSON response
-      .then(data => {
-        // Check if the response has the 'items' array and each item should have an 'id'
-        if (data.items && data.items.length > 0 && data.items[0].id) {
-          resolve(data);
+      .then(response => {
+        console.log('Response:', response);
+        if (response.ok) {
+          if (response.status === 202) {
+            // Handle 202 Accepted: assume success but no content to parse
+            resolve({ success: true, message: 'Request accepted, processing to be completed asynchronously.' });
+          } else {
+            // Assume response to be JSON if not 202
+            return response.json();
+          }
         } else {
-          // If the expected 'id' is not present, consider it an error
-          reject(new Error("Failed to insert row. Response: " + JSON.stringify(data)));
+          // Handle non-OK responses by parsing JSON and throwing an error
+          return response.json().then(errData => {
+            throw new Error(`Server responded with ${response.status}: ${JSON.stringify(errData)}`);
+          });
+        }
+      })
+      .then(data => {
+        if (data) {
+          if (data.items && data.items.length > 0 && data.items[0].id) {
+            resolve(data);
+          } else {
+            reject(new Error("Failed to insert row: No 'id' found in response"));
+          }
         }
       })
       .catch(error => {
-        // Network or parsing errors will be caught here
+        console.error("Error in Coda API call:", error.message);
         reject(new Error("Error: " + error.message));
       });
   });
 }
+
 
 
 

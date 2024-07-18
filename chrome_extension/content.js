@@ -1,10 +1,16 @@
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
+    console.log("Received message:", message); // Log the received message for debugging
     if (message.action === "displayFloatingBox" && message.text) {
+        console.log("Attempting to display floating box with text:", message.text); // Log the action
         displayFloatingBox(message.text);
+        console.log("Floating box displayed successfully."); // Log success
         sendResponse({result: "Displayed box successfully."});
+    } else {
+        console.log("Message did not match expected action or text missing."); // Log unmatched cases
     }
 });
+
 
 function pushToMem2(content) {
     return new Promise((resolve, reject) => {

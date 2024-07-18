@@ -188,44 +188,39 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 });
 
 
-// background.js
-
-// This function ensures that the context menu item is created only once
-function createContextMenu() {
+// Ensure the context menu is created on installation
+chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: "explainText",
         title: "Explain",
         contexts: ["selection"]
-    }, () => {
-        if (chrome.runtime.lastError) {
-            console.error("Error creating context menu item:", chrome.runtime.lastError.message);
-        }
     });
-}
+});
 
-// This function removes the context menu item if it exists
-function removeAndCreateContextMenu() {
-    chrome.contextMenus.remove("explainText", () => {
-        if (chrome.runtime.lastError) {
-            // Log the error if it's not about non-existing item
-            if (!chrome.runtime.lastError.message.includes('Cannot find menu item with id')) {
-                console.error("Error removing context menu item:", chrome.runtime.lastError.message);
+// Handle clicks on the context menu
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId === "explainText" && info.selectionText) {
+        chrome.scripting.executeScript({
+            target: {tabId: tab.id},
+            files: ['content.js']
+        }, () => {
+            if (chrome.runtime.lastError) {
+                console.error("Error injecting script: ", chrome.runtime.lastError.message);
+                return;
             }
-        }
-        // Create the context menu item after attempting to remove it
-        createContextMenu();
-    });
-}
 
-// Listen for when the Service Worker is installed or updated
-chrome.runtime.onInstalled.addListener(() => {
-    removeAndCreateContextMenu();
+            // Now send the message
+            chrome.tabs.sendMessage(tab.id, {action: "displayFloatingBox", text: info.selectionText}, response => {
+                if (chrome.runtime.lastError) {
+                    console.error("Error sending message:", chrome.runtime.lastError.message);
+                    return;
+                }
+                console.log("Response received:", response);
+            });
+        });
+    }
 });
 
-// Listen for when the extension is activated (e.g., browser restart)
-chrome.runtime.onStartup.addListener(() => {
-    removeAndCreateContextMenu();
-});
 
 
 

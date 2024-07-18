@@ -158,11 +158,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.message === 'pushToCoda') {
     chrome.storage.sync.get('api_coda', function(data) {
+      if (!data.api_coda) {
+        console.error("API key for Coda not found");
+        sendResponse({ error: "API key for Coda not found" });
+        return; // Make sure to return after sending response
+      }
+
       pushToCoda(request.data, data.api_coda)
-        .then(response => sendResponse({ success: response }))
-        .catch(error => sendResponse({ error: error }));
+        .then(response => {
+          console.log("Successfully pushed to Coda", response);
+          sendResponse({ success: response });
+        })
+        .catch(error => {
+          console.error("Failed to push to Coda", error);
+          sendResponse({ error: error.message });
+        });
     });
-    return true; // Indicates that the response is asynchronous
+    return true; // Keep the message channel open
   }
 });
 
